@@ -3,10 +3,10 @@ import argparse
 import cv2
 import numpy as np
 
-from lrl0 import LRL0
-from lrl0phi import LRL0PHI
-from tnnr import TNNR
-from lrtv import LRTV
+from src.lrl0 import LRL0
+from src.lrl0phi import LRL0PHI
+from src.tnnr import TNNR
+from src.lrtv import LRTV
 
 def parse_args():
     parser = argparse.ArgumentParser(description='depthInpainting')
