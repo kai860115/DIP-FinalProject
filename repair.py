@@ -3,7 +3,7 @@ import argparse
 import cv2
 import numpy as np
 
-from hole_filling import HF
+from src.hole_filling import HF
 
 
 def parse_args():

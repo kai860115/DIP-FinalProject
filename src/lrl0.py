@@ -1,12 +1,15 @@
+from typing import OrderedDict
 import cv2
 import numpy as np
 
-from utils import norm_tv, PSNR
-from tnnr import TNNR
-from common import g
+from .utils import norm_tv, PSNR
+from .tnnr import TNNR
+from .common import g
 
-class LRL0PHI:
-    def __init__(self, I, mask, u0, rho, dt, lambda_l0, lambda_rank, k):
+from collections import OrderedDict
+
+class LRL0:
+    def __init__(self, I, mask, u0, rho, dt, lambda_l0, lambda_rank):
         self.I = I.astype(np.float64)
         self.mask = mask.astype(np.float64) / 255.0
 
@@ -27,7 +30,6 @@ class LRL0PHI:
         self.alpha = 1.0
         self.lambda_rank = lambda_rank
         self.lambda_l0 = lambda_l0
-        self.k = k
 
     def sub_1(self, K):
         epsilon = 1e-4
@@ -47,7 +49,7 @@ class LRL0PHI:
                 
                 temp['M_mean'] = self.M[i][j]
                 temp['Y_mean'] = self.Y[i][j]
-                temp['Y'] = (temp['w'] * self.rho * (temp['M_mean'] - temp['Y_mean']) + 2 * temp['w_mask'] * temp['I_mean']) / (temp['w'] * self.rho + 2 * temp['w_mask'])
+                temp['Y'] = np.float64((temp['w'] * self.rho * (temp['M_mean'] - temp['Y_mean']) + 2 * temp['w_mask'] * temp['I_mean']) / (temp['w'] * self.rho + 2 * temp['w_mask'])) 
                 
                 if 'N' not in temp:
                     temp['N'] = []
@@ -73,7 +75,6 @@ class LRL0PHI:
         
         beta = 0
         iteration = 0
-
         while True:
             I_copy = I.copy()
             it = iter(I_copy.items())
@@ -85,30 +86,21 @@ class LRL0PHI:
                     j_idx = 0
                     while j_idx < len(I[i]['N']):
                         j = I[i]['N'][j_idx]
+                        value1 = 0
+                        value2 = 0
                         temp1 = I[i]
                         temp2 = I[j]
+                        
                         value1 = (temp1['w'] * temp1['w_mask'] * self.rho * np.power(temp1['I_mean'] - temp1['M_mean'] + temp1['Y_mean'], 2) / (temp1['w'] * self.rho + 2 * temp1['w_mask'])) + (temp2['w'] * temp2['w_mask'] * self.rho * np.power(temp2['I_mean'] - temp2['M_mean'] + temp2['Y_mean'], 2) / (temp2['w'] * self.rho + 2 * temp2['w_mask'])) + (beta * temp1['c'][j])
-
                         X = (temp1['w'] * self.rho * (temp1['M_mean'] - temp1['Y_mean']) + 2 * temp1['w_mask'] * temp1['I_mean'] + temp2['w'] * self.rho * (temp2['M_mean'] - temp2['Y_mean']) + 2 * temp2['w_mask'] * temp2['I_mean']) / (temp1['w'] * self.rho + 2 * temp1['w_mask'] + temp2['w'] * self.rho + 2 * temp2['w_mask'])
+                        X = np.float64(X)
                         value2 = (temp1['w'] * self.rho / 2.0 * np.power(X - temp1['M_mean'] + temp1['Y_mean'], 2)) + (temp1['w_mask'] * np.power(X - temp1['I_mean'], 2)) + (temp2['w'] * self.rho / 2.0 * np.power(X - temp2['M_mean'] + temp2['Y_mean'], 2)) + (temp2['w_mask'] * np.power(X - temp2['I_mean'], 2))
-
-                        if temp2['Y'] < temp1['Y']:
-                            Xi = (temp1['w'] * self.rho * (temp1['M_mean'] - temp1['Y_mean']) + 2 * temp1['w_mask'] * temp1['I_mean'] + temp2['w'] * self.rho * (temp2['M_mean'] - temp2['Y_mean'] + 1.0) + 2 * temp2['w_mask'] * (temp2['I_mean'] + 1.0)) / (temp1['w'] * self.rho + 2 * temp1['w_mask'] + temp2['w'] * self.rho + 2 * temp2['w_mask'])
-                            Xj = Xi - 1.0
-                        else:
-                            Xi = (temp1['w'] * self.rho * (temp1['M_mean'] - temp1['Y_mean']) + 2 * temp1['w_mask'] * temp1['I_mean'] + temp2['w'] * self.rho * (temp2['M_mean'] - temp2['Y_mean'] - 1.0) + 2 * temp2['w_mask'] * (temp2['I_mean'] - 1.0)) / (temp1['w'] * self.rho + 2 * temp1['w_mask'] + temp2['w'] * self.rho + 2 * temp2['w_mask'])
-                            Xj = Xi + 1.0
-                            
-                        value3 = (temp1['w'] * self.rho / 2.0 * np.power(Xi - temp1['M_mean'] + temp1['Y_mean'], 2)) + (temp1['w_mask'] * np.power(Xi - temp1['I_mean'], 2)) + (temp2['w'] * self.rho / 2.0 * np.power(Xj - temp2['M_mean'] + temp2['Y_mean'], 2)) + (temp2['w_mask'] * np.power(Xj - temp2['I_mean'], 2)) + self.k * self.lambda_l0
                         value1 = 0 if value1 <= epsilon else np.float64(value1)
                         value2 = 0 if value2 <= epsilon else np.float64(value2)
-                        value3 = 0 if value3 <= epsilon else np.float64(value3)
+                        if not (value1==value1 and value2 == value2):
+                            print(f'{value2} {value1}')
 
-                        if value3 < min(value1, value2):
-                            temp1['Y'] = Xi
-                            temp2['Y'] = Xj
-                            j_idx += 1
-                        elif value2 <= min(value1, value3):
+                        if value2 <= value1:
                             temp_value = j
                             
                             I[i]['Y'] = X
@@ -120,7 +112,7 @@ class LRL0PHI:
                                 I[i]['I_mean'] = (I[i]['I_mean'] * I[i]['w_mask'] + I[j]['I_mean'] * I[j]['w_mask']) / (I[i]['w_mask'] + I[j]['w_mask'])
                             I[i]['w'] = I[i]['w'] + I[j]['w']
                             I[i]['w_mask'] = I[i]['w_mask'] + I[j]['w_mask']
-                            I[i]['G'] += I[j]['G']
+                            I[i]['G'] += I[j]['G'] 
                             I[i]['G'].sort()
                             I[i]['c'].pop(temp_value)
                             I[i]['N'].remove(j)
@@ -145,10 +137,9 @@ class LRL0PHI:
                             while i not in I:
                                 i, ele = next(it)
                             break
-
                         else:
                             j_idx += 1
-                    
+                        
             except StopIteration:
                 pass
 
@@ -186,7 +177,7 @@ class LRL0PHI:
             self.sub_3()
 
             output = self.U.astype(np.uint8)
-            cv2.imwrite(f"{path}/lrl0phi_{iter_ + 1}.png", output)
+            cv2.imwrite(f"{path}/lrl0_{iter_ + 1}.png", output)
             mask = 255.0 * self.mask
             psnr = PSNR(original, self.U, mask)
 

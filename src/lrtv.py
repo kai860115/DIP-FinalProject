@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-from utils import norm_tv, PSNR
-from tnnr import TNNR
+from .utils import norm_tv, PSNR
+from .tnnr import TNNR
 
 class LRTV:
     def __init__(self, I, mask, u0, rho, dt, lambda_tv, lambda_rank):
