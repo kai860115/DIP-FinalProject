@@ -80,4 +80,6 @@ def TNNR(im0, mask, lower_R, upper_R, lambda_):
             X = np.copy(X_rec)
             X_rec_last = np.copy(X_rec)
 
+    X = np.maximum(X, 0.0)
+    X = np.minimum(X, 255.0)
     return X

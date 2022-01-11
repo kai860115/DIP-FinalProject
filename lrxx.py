@@ -11,14 +11,14 @@ from src.lrtv import LRTV
 def parse_args():
     parser = argparse.ArgumentParser(description='depthInpainting')
 
-    parser.add_argument('--method', default='LRTV', type=str, choices=['LRTV', 'LRL0', 'LRL0PHI'])
+    parser.add_argument('--method', default='LRTV', type=str, choices=['LR', 'LRTV', 'LRL0', 'LRL0PHI'])
     parser.add_argument('--depth_image', default='', type=str)
     parser.add_argument('--mask', default='', type=str)
     parser.add_argument('--output_path', default='./inpainting', type=str)
     parser.add_argument('--data', default='Teddy', type=str)
     parser.add_argument('--init_image', default='', type=str)
-    parser.add_argument('--K', default=3, type=int)
-    parser.add_argument('--lambda_l0', default=30, type=int)
+    parser.add_argument('--K', default=5, type=int)
+    parser.add_argument('--lambda_l0', default=50, type=int)
     parser.add_argument('--max_iter_cnt', default=30, type=int)
 
     args = parser.parse_args()
@@ -31,7 +31,14 @@ def main(args):
     disparityMissing = disparityMissing * (mask / 255)
     denoised = cv2.imread(args.init_image, cv2.IMREAD_GRAYSCALE)
     # denoised = TNNR(disparityMissing, mask, 9, 9, 1e-2)
-    if args.method == 'LRTV':
+    if args.method == 'LR':
+        inpaintingPath = f"{args.output_path}/LR_result/{args.data}"
+        os.makedirs(inpaintingPath, exist_ok=True)
+        result = TNNR(disparityMissing, mask, 1, 10, 0.06)
+        output = result.astype(np.uint8)
+        cv2.imwrite(f'{inpaintingPath}/lr.png', output)
+
+    elif args.method == 'LRTV':
         inpaintingPath = f"{args.output_path}/LRTV_result/{args.data}"
         os.makedirs(inpaintingPath, exist_ok=True)
         lrtv = LRTV(disparityMissing, mask, denoised, 1.2, 0.1, 40, 10)
