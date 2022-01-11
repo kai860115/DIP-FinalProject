@@ -33,7 +33,7 @@ def main(args):
   # params
   original = cv2.imread(args.input, cv2.IMREAD_GRAYSCALE)
 
-  os.makedirs(os.path.dirname(args.output_dir), exist_ok=True)
+  os.makedirs(args.output_dir, exist_ok=True)
 
   cv2.imwrite(f'{args.output_dir}/original.png', original)
 
