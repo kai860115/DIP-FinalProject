@@ -11,7 +11,7 @@ from src.lrtv import LRTV
 def parse_args():
     parser = argparse.ArgumentParser(description='depthInpainting')
 
-    parser.add_argument('--method', default='LRTV', type=str, choices=['LRTV', 'LRL0', 'LRL0PHI', 'repair'])
+    parser.add_argument('--method', default='LRTV', type=str, choices=['LRTV', 'LRL0', 'LRL0PHI'])
     parser.add_argument('--depth_image', default='', type=str)
     parser.add_argument('--mask', default='', type=str)
     parser.add_argument('--output_path', default='./inpainting', type=str)
