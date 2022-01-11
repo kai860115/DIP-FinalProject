@@ -10,7 +10,7 @@ def parse_args():
     parser.add_argument('--input', default='', type=str)
     parser.add_argument('--output_mask', default='./mask.png', type=str)
     parser.add_argument('--output_missing', default='./missing.png', type=str)
-    parser.add_argument('--missing_rate', default=0.5, type=int)
+    parser.add_argument('--missing_rate', default=0.5, type=float)
 
     args = parser.parse_args()
     return args
