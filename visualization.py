@@ -11,7 +11,7 @@ def parse_args():
   parser.add_argument('--input', default='', type=str)
   parser.add_argument('--output_dir', default='./visualization', type=str)
   parser.add_argument('--threshold', default=48, type=int)
-  parser.add_argument('--hole_dilate_iter', default=0, type=int)
+  parser.add_argument('--hole_dilate_iter', default=1, type=int)
   parser.add_argument('--boundary_dilate_iter', default=1, type=int)
   parser.add_argument('--dilate_kernel_size', default=3, type=int)
 
