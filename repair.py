@@ -21,6 +21,7 @@ def parse_args():
 
 def main(args):
     img = cv2.imread(args.input, flags=cv2.IMREAD_GRAYSCALE)
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
     hf = HF(img, threshold=args.threshold, hole_dilate_iter=args.hole_dilate_iter, boundary_dilate_iter=args.boundary_dilate_iter, dilate_kernel_size=(args.dilate_kernel_size, args.dilate_kernel_size))
     repaired= hf.repair()
     cv2.imwrite(args.output, repaired)
