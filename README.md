@@ -11,40 +11,46 @@ Reproducing [LRLG](https://arxiv.org/abs/1604.05817) and do some modification or
 
 ## Usage
 
-Generate input data
+1. Generate mask data
 
 ```bash
-python ?????
+python gen_mask.py --input <input> --output_mask <output_mask> --output_missing <output_missing> --missing_rate <missing_rate>
 ```
 
-Run LRL0Phi to repair the input data
+* **input**: input depth image (ex: data/Teddy/disp.png)
+* **output_mask**: path to mask output (ex: data/Teddy/mask.png)
+* **output_missing**: path to depth missing output (ex: data/Teddy/missing.png)
+* **missing_rate**: missing rate (ex: 0.5)
+
+2. Run LR/LRTV/LRL0/LRL0Phi to repair the input data
 
 ```bash
-python lrxx.py --method LRL0PHI
+python lrxx.py --method <method> --depth_image <depth_image> --mask <mask> [--init_image <init_image>] --output_path <output_path> --data <data> 
 ```
 
-Run our method to fix the large holes in the result of LRL0Phi
+* **method**: LR method (ex: LR/LRTV/LRL0/LRL0PHI)
+* **depth_image**: path to input depth image (ex: data/Teddy/disp.png)
+* **mask**: path to input mask image (ex: data/Teddy/mask_50.png)
+* **init_image**: path to input LR result image, LRTV/LRL0/LRL0PHI required (ex: data/Teddy/tnnr_50.png)
+* **output_path**: path to result image (ex: result/)
+* **data**: data name (ex: Teddy or Piano ...)
+
+3. Run our method to fix the large holes in the result of LRL0Phi
 
 ```bash
-python repair.py
+python repair.py --input <input> --output <output>
 ```
+
+* **input**: path to LR/LRTV/LRL0/LRL0Phi result image (ex: result/LRL0PHI_result/5_50/Teddy/lrl0phi.png)
+* **output**: path to output repaired image (ex: repaired.png)
 
 ## Optional Usage
-
-Using LRTV to repair the input data
-
-```bash
-python lrxx.py --method LRTV
-```
-
-Using LRTV to repair the input data
-
-```bash
-python lrxx.py --method LRL0
-```
 
 Visualizing the process of our method
 
 ```bash
-python visualization
+python visualization --input <input> --output_dir <output_dir>
 ```
+
+* **input**: path to repaired image (ex: repaired.png)
+* **output**: path to output directory (ex: visualization/)
