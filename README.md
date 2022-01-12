@@ -11,6 +11,17 @@ Reproducing [LRLG](https://arxiv.org/abs/1604.05817) and do some modification or
 
 ## Usage
 
+### Run in one line
+```bash
+bash run.sh <method> <name> <LR_output_dir> <repair_output_path>
+```
+
+* **method**: LR method (ex: LR/LRTV/LRL0/LRL0PHI)
+* **name**: data name (ex: Teddy/Piano/Shelves/Vintage)
+* **LR_output_dir**: path to LRxx output directory (ex: result/)
+* **repair_output_path**: path to repaired output image (ex: result/repaired.png)
+
+### Run step by step
 1. Generate mask data
 
 ```bash
@@ -25,15 +36,15 @@ python gen_mask.py --input <input> --output_mask <output_mask> --output_missing 
 2. Run LR/LRTV/LRL0/LRL0Phi to repair the input data
 
 ```bash
-python lrxx.py --method <method> --depth_image <depth_image> --mask <mask> [--init_image <init_image>] --output_path <output_path> --data <data> 
+python lrxx.py --method <method> --depth_image <depth_image> --mask <mask> [--init_image <init_image>] --output_path <output_path> --name <name> 
 ```
 
 * **method**: LR method (ex: LR/LRTV/LRL0/LRL0PHI)
 * **depth_image**: path to input depth image (ex: data/Teddy/disp.png)
 * **mask**: path to input mask image (ex: data/Teddy/mask_50.png)
-* **init_image**: path to input LR result image, LRTV/LRL0/LRL0PHI required (ex: data/Teddy/tnnr_50.png)
+* **init_image**: path to input LR result image, LRTV/LRL0/LRL0PHI required (ex: data/Teddy/tnnr.png)
 * **output_path**: path to result image (ex: result/)
-* **data**: data name (ex: Teddy or Piano ...)
+* **name**: data name (ex: Teddy or Piano ...)
 
 3. Run our method to fix the large holes in the result of LRL0Phi
 
@@ -41,7 +52,7 @@ python lrxx.py --method <method> --depth_image <depth_image> --mask <mask> [--in
 python repair.py --input <input> --output <output>
 ```
 
-* **input**: path to LR/LRTV/LRL0/LRL0Phi result image (ex: result/LRL0PHI_result/5_50/Teddy/lrl0phi.png)
+* **input**: path to LR/LRTV/LRL0/LRL0Phi result image (ex: result/LRL0PHI_result/Teddy/lrl0phi.png)
 * **output**: path to output repaired image (ex: repaired.png)
 
 ## Optional Usage
